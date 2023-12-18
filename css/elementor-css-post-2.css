@@ -527,7 +527,7 @@
     --padding-inline-end:0px;
 }
 body.elementor-page-2{
-    margin:0px 15px 0px 15px;
+    margin:0px 0px 0px 0px;
     padding:0px 0px 0px 0px;
 }
 body.elementor-page-2:not(.elementor-motion-effects-element-type-background), body.elementor-page-2 > .elementor-motion-effects-container > .elementor-motion-effects-layer{
