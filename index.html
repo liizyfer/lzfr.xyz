@@ -1,14 +1,101 @@
-<html>
-<body style="margin:0px!important;background-color:#000000">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Looping Videos with Sound</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            background-color: black; /* Optional: Set background to black */
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #playButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+            color: white; /* White color for the icon */
+            font-size: 48px; /* Size of the icon */
+        }
+        #playButton:focus {
+            outline: none; /* Remove focus outline */
+        }
+    </style>
+    <!-- Add Font Awesome for the speaker icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Speaker Icon Button -->
+    <button id="playButton">
+        <i class="fas fa-volume-up"></i> <!-- Font Awesome speaker icon -->
+    </button>
 
-  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.93/build/spline-viewer.js"></script>
-<spline-viewer loading-anim-type="spinner-small-dark" url="https://prod.spline.design/QFjt7IUHFClajo1T/scene.splinecode" style="height: 107vh;
-    position: fixed;"></spline-viewer>
-  </div>  
+    <!-- Video Elements -->
+    <video id="video1" autoplay muted></video>
+    <video id="video2" muted style="display: none;"></video>
+
+    <script>
+        // Video URLs
+        const video1Url = 'https://github.com/liizyfer/lzfr.xyz/raw/refs/heads/main/altered.mp4';
+        const video2Url = 'https://github.com/liizyfer/lzfr.xyz/raw/refs/heads/main/state.mp4';
+
+        // Get elements
+        const video1 = document.getElementById('video1');
+        const video2 = document.getElementById('video2');
+        const playButton = document.getElementById('playButton');
+
+        // Set video sources
+        video1.src = video1Url;
+        video2.src = video2Url;
+
+        // Enable sound and start playback on user interaction
+        playButton.addEventListener('click', () => {
+            // Hide the play button
+            playButton.style.display = 'none';
+
+            // Unmute videos and start playing
+            video1.muted = false;
+            video2.muted = false;
+            video1.play();
+            document.documentElement.requestFullscreen();
+
+            // When video1 ends, play video2
+            video1.addEventListener('ended', () => {
+                video1.style.display = 'none';
+                video2.style.display = 'block';
+                video2.play();
+            });
+
+            // When video2 ends, play video1 again
+            video2.addEventListener('ended', () => {
+                video2.style.display = 'none';
+                video1.style.display = 'block';
+                video1.play();
+            });
+        });
+
+        // Disable right-click and F12 (not foolproof)
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
-
-<style>
-a#logo{
-display:none!important;}
-</style>
