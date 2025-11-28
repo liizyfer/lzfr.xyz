@@ -1,368 +1,261 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C:\&gt; Cristea Mihai | CMD Interface</title>
+    
+    <!-- Fonts: Use a standard monospaced font for authenticity -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        mono: ['Space Mono', 'monospace'], // The primary terminal font
+                    },
+                    colors: {
+                        primary: '#000000', // Black background
+                        text_main: '#FFFFFF', // White text
+                        prompt: '#AAAAAA', // Light gray for prompt info
+                    },
+                    keyframes: {
+                        // Blinking cursor animation
+                        blink: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0 },
+                        }
+                    },
+                    animation: {
+                        blink: 'blink 1s step-start infinite',
+                    }
+                }
+            }
+        }
+    </script>
 
-<meta name="description" content="Cristea Mihai, web-dev">
-<meta name="ROBOTS" content="INDEX,FOLLOW">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cristea-Mihai😉</title>
-<style>
-html{
+    <style>
+        /* Global CMD Styles */
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: 'Space Mono', monospace;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+            /* Hide default cursor and use I-beam style */
+            cursor: text; 
+        }
 
-}
-body{
-font-family: Consolas, sans-serif;
-color: white;
-position: fixed;
-height: 100vh;
-height: 100dvh;
-margin: 0;
-font-size:130%;
-background-color: black;
-}
+        /* Container mimics the CMD window */
+        .console-container {
+            max-width: 1000px;
+            width: 95%;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.5; /* Standard terminal line spacing */
+            font-size: 14px;
+        }
 
-main{
-display:flex;
-justify-content: center;
-align-items: center;
-width: 100vw;
-height: 100vh;
-height: 100dvh;
-}
-main p{
-margin:0.25em auto;
-text-align: center;
-max-width: 60%;
-}
-a{
-color: inherit;
-}
-nav{
-list-style: none;
-font-size: 60px;
-}
-#background{
-position: absolute;
-top: 0;
-right: 0;
-left: 0;
-bottom:0;
-height: 100%;
-width: 100%;
-background-color: #5a31e0;
-z-index: -2;
-}
+        /* The Blinking Cursor */
+        .cursor {
+            display: inline-block;
+            width: 8px; /* Width of the block cursor */
+            height: 14px; /* Height of the block cursor */
+            background-color: #FFFFFF;
+            margin-left: 2px;
+            position: relative;
+            top: 2px;
+            animation: blink 1s step-start infinite;
+        }
 
-#instructions{
-width: 100vw;
-position:fixed; 
-top: 0;
-z-index: -1;
-height: 100vh;
-height: 100dvh;
-display:flex;
-align-items: center;
-justify-content: center;
-}
+        /* CMD Prompt look */
+        .cmd-prompt {
+            color: #FFFFFF;
+            white-space: pre;
+        }
 
-.letter{
-z-index: 10;
-}
-.letter, .instructions{
-padding: 0.2em;
--webkit-user-select: none;
-user-select: none;
-}
-.top{position:fixed; top:0}
-.bottom{position:fixed; bottom:0}
-.left{position:fixed; left:0}
-.right{ position:fixed; right:0}
+        /* Command Output Style */
+        .cmd-output {
+            margin-bottom: 10px;
+        }
 
-.top.rotate{margin:1rem;}
-.bottom.rotate{transform: rotate(180deg);margin:1rem;}
-.left.rotate{transform: rotate(180deg);writing-mode: vertical-rl;text-orientation: mixed;margin:0.5rem;}
-.right.rotate{writing-mode: vertical-lr;text-orientation:mixed;margin:0.5rem;}
-
-
-
-.background{
-position:absolute; 
-margin:0;
-color: white;
-background-color: white;
-top: 0;
-bottom:0;
-z-index: -1;
-width: 100vw;
-height: 100vh;
-height: 100dvh;
-}
-.background .content, .background .image img{
-overflow: hidden;
-width: 100%;
-height: 100%;
-object-fit: cover;
-position:absolute;
-}
-
-.background .text{
-height: fit-content;
-}
-.background .text p{
-max-width: 600px;
-margin: 1em;
-}
-#bottomleftcontent{background-color: red}
-#topleftcontent{background-color: black}
-#bottomleftcontent > div{bottom:0}
-
-@media (max-width: 600px){
-  body{font-size: 105%;}
-  .instructions{font-size: 80%;}
-  nav{font-size: 50px;}
-}
-</style>
+        /* Link/Command Button Style */
+        .cmd-link {
+            display: block;
+            color: #FFFFFF;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        .cmd-link:hover {
+            background-color: #333333; /* Highlight on hover */
+        }
+        
+        /* Directory/Log Header */
+        .dir-header {
+            color: #AAAAAA;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            border-bottom: 1px dashed #444444;
+            padding-bottom: 3px;
+        }
+    </style>
+</head>
 <body>
 
-<main style="clip-path: inset(0px); user-select: auto; transition-duration: 0.3s; transition-timing-function: cubic-bezier(0.2, 1.2, 0.68, 0.96); transition-property: transform, clip-path;">
-  <div style="text-align: center;" id="container" bis_skin_checked="1">
-  <p>Cristea Mihai <br>web-dev in Bucharest.</p>
-  <a href="https://wa.me/+40730432343">Whatsapp</a>
-  </div>
-<div id="instructions" bis_skin_checked="1">
-<p class="instructions left rotate">drag letters</p>
-<p aria-hidden="true" class="instructions top rotate">drag letters</p>
-<p aria-hidden="true" class="instructions bottom rotate">drag letters</p>
-<p aria-hidden="true" class="instructions right rotate">drag letters</p>
-</div>
-<div id="background" bis_skin_checked="1"></div>
-</main>
+    <!-- Main CMD Container -->
+    <div class="console-container">
+        
+        <!-- 1. BOOT SEQUENCE -->
+        <div id="boot-sequence" class="cmd-output">
+            Microsoft Windows [Version 10.0.19045.3996]<br>
+            (c) Microsoft Corporation. All rights reserved.<br>
+            <br>
+            <span class="text-prompt" id="time-display"></span><br>
+            <br>
+        </div>
+
+        <!-- 2. IDENTITY LOG (Default Output) -->
+        <div id="identity-log" class="cmd-output">
+            C:\Users\Cristea\&gt; run profile_init.exe<br>
+            <br>
+            [CMD] Initializing Profile: Cristea Mihai<br>
+            [CMD] Role: System Architect & Web Developer<br>
+            [CMD] Location: Bucharest, RO<br>
+            <br>
+            [CMD] Execute function: digital_perfection()<br>
+            &gt; Building sterile, high-precision interfaces. Zero tolerance for visual debt.<br>
+            &gt; System status: READY.<br>
+            <br>
+        </div>
+
+        <!-- 3. NAVIGATION / COMMANDS -->
+        <div id="command-list" class="cmd-output">
+            C:\Users\Cristea\&gt; help<br>
+            <span class="text-prompt">Available Commands:</span><br>
+            
+            <span class="ml-4">
+                <a href="#projects" class="cmd-link inline-block w-full">WORK_LOG ............ Displays the project log and access dates.</a>
+                <!-- The DATA_MATRIX command is removed here -->
+                <a href="mailto:hello@cristea.com" class="cmd-link inline-block w-full">CONTACT ............. Opens direct email connection.</a>
+                <a href="https://wa.me/407xxxxxxxx" target="_blank" class="cmd-link inline-block w-full">WHATSAPP ............ Initiates secure chat connection.</a>
+            </span>
+            <br>
+        </div>
 
 
-<nav>
-<li id="topleft" class="letter top left" style="transform: translateX(0px); color: inherit; cursor: grab; transition-duration: 0.3s; transition-timing-function: cubic-bezier(0.2, 1.2, 0.68, 0.96); transition-property: transform;">C</li>
-<li id="topright" class="letter top right" style="transform: translateY(0px); transition-duration: 0.3s; transition-timing-function: cubic-bezier(0.2, 1.2, 0.68, 0.96); color: inherit; cursor: grab; transition-property: transform;">M</li>
-<li id="bottomleft" class="letter bottom left" style="transform: translate(0px, 0px); transition-duration: 0.3s; transition-timing-function: cubic-bezier(0.2, 1.2, 0.68, 0.96); color: inherit; cursor: grab; transition-property: transform;">W</li>
-<li id="bottomright" class="letter bottom right" style="transform: translateY(0px); transition-duration: 0.3s; transition-timing-function: cubic-bezier(0.2, 1.2, 0.68, 0.96); color: inherit; cursor: grab; transition-property: transform;">D</li>
-</nav>
+        <!-- 4. PROJECTS / WORK LOG (Note: Section 4 from original is now this section) -->
+        <div id="projects" class="cmd-output mt-8">
+            <C class="cmd-prompt">C:\Users\Cristea\&gt; WORK_LOG</C><br>
+            <span class="text-prompt">Directory of C:\Users\Cristea\Projects\</span><br>
+            <br>
+            <div class="dir-header grid grid-cols-12">
+                <span class="col-span-1">ID</span>
+                <span class="col-span-5">Project Name</span>
+                <span class="col-span-4 hidden md:block">Discipline / Tech</span>
+                <span class="col-span-2 text-right">Date</span>
+            </div>
+            
+            <!-- Project Log Entries -->
+            <div class="divide-y divide-gray-800">
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[01]</span>
+                    <span class="col-span-5">Aether_Finance.dat</span>
+                    <span class="col-span-4 hidden md:block">Fintech / React, TS, D3</span>
+                    <span class="col-span-2 text-right">2024</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[02]</span>
+                    <span class="col-span-5">Bucharest_Metro_UI.sys</span>
+                    <span class="col-span-4 hidden md:block">Public Transit / Angular</span>
+                    <span class="col-span-2 text-right">2024</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[03]</span>
+                    <span class="col-span-5">Lumina_Gallery.www</span>
+                    <span class="col-span-4 hidden md:block">Art Direction / Vue, GSAP</span>
+                    <span class="col-span-2 text-right">2023</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[04]</span>
+                    <span class="col-span-5">Orbital_SaaS_Platform.b2b</span>
+                    <span class="col-span-4 hidden md:block">B2B / React, Firestore</span>
+                    <span class="col-span-2 text-right">2023</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[05]</span>
+                    <span class="col-span-5">Type_Foundry.ecom</span>
+                    <span class="col-span-4 hidden md:block">E-commerce / PHP, SASS</span>
+                    <span class="col-span-2 text-right">2023</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[06]</span>
+                    <span class="col-span-5">Apex_Fitness.app</span>
+                    <span class="col-span-4 hidden md:block">Mobile Marketing / HTML</span>
+                    <span class="col-span-2 text-right">2022</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[07]</span>
+                    <span class="col-span-5">Mono_Architecture.pf</span>
+                    <span class="col-span-4 hidden md:block">Portfolio / React, Three.js</span>
+                    <span class="col-span-2 text-right">2022</span>
+                </a>
+                <a href="#" class="cmd-link grid grid-cols-12 py-1">
+                    <span class="col-span-1">[08]</span>
+                    <span class="col-span-5">Silk_&amp;_Stone.fshn</span>
+                    <span class="col-span-4 hidden md:block">Fashion E-commerce / Shopify</span>
+                    <span class="col-span-2 text-right">2022</span>
+                </a>
+            </div>
+            <br>
+        </div>
+        
+        <!-- 5. ACTIVE PROMPT (Always at the bottom) -->
+        <div class="cmd-prompt flex">
+            <span class="text-white">C:\Users\Cristea\&gt; </span>
+            <span class="cmd-link">|</span><span class="cursor"></span>
+        </div>
 
-<div id="topleftcontent" class="background" bis_skin_checked="1" hidden="true">
-<div class="text content" bis_skin_checked="1">
-<p>Sunt Cristea Mihai, creator de site-uri, pasionat de design simplu, curat și funcțional.</p>
-<p>I love giving life to my ideas. Absolvent <em>Universitatea Romano-Americana</em>, <em>Bucuresti</em>,<em>. varsta 29 ani.</em></p>
-</div>
-</div>
+    </div>
 
-<div id="toprightcontent" class="background" bis_skin_checked="1" hidden="true">
-<div class="image content" bis_skin_checked="1">
-<img src="./me.webp" alt="Me standing in my room.">
-</div>
-</div>
-
-<div id="bottomrightcontent" class="background" bis_skin_checked="1" hidden="true">
-<div class="image content" bis_skin_checked="1">
-<img src="./CR_files/pic.webp">
-</div>
-</div>
-
-<div id="bottomleftcontent" class="background" bis_skin_checked="1">
-<div class="text content" bis_skin_checked="1">
-<p>biboburgers.ro</p>
-<p>manon-chemise.ro</p>
-<p>greennews.ro</p>
-<p>hugbakery.ro</p>
-<p>glamor.eu</p>
-<p>the-a.ro</p>
-<p>angel96.eu</p>
-<p>supreme-snacks.ro</p>
-<p>rojet.ro</p>
-<p> < some more under development. > </p>
-</div>
-</div>
-
-
-
-<script>
-/// this is a cautionary tale: when ai gives you code, this garbage is in there too
-function clamp(x, lo, hi) {
-  return x < lo ? lo : x > hi ? hi : x;
-}
-
-var main = document.querySelector("main");
-var background = document.querySelector("#background");
-var instructions = document.querySelector("#instructions");
-/* var container = document.querySelector("#container"); */
-
-let letters = document.querySelectorAll(".letter")
-letters.forEach((letter) => {
-  let letterWidth
-  let letterHeight
-  
-  if (window.innerWidth > 600) {
-    letterWidth = 110
-    letterHeight = 150
-  } else {  
-    letterWidth = 90
-    letterHeight = 130    
-  }
-  
-  let springTime = "1.3s"
-  let springType = "cubic-bezier(0.2, 1.2, 0.68, 0.96)" 
-/*   let springType = "cubic-bezier(0.2, 1.2, 0.65, 1.01)" //bouncy */
-  
-  let self = {}
-  let neighbor = {}
-  let movementX = {}
-  let movementY = {}
-  let axis = {}
-  let transformBase = "";
-  
-  if (letter.classList.contains("top")){
-    self.y = "top"
-    neighbor.y = "bottom"
-    movementY.min = 0
-    movementY.max = (window.innerHeight - letterHeight)
-  } else if (letter.classList.contains("bottom")){
-    self.y = "bottom"
-    neighbor.y = "top"
-    movementY.min = (letterHeight - window.innerHeight)
-    movementY.max = 0
-  }
-  if (letter.classList.contains("left")){
-    self.x = "left"
-    neighbor.x = "right"
-    movementX.min = 0
-    movementX.max = (window.innerWidth - letterWidth)
-  } else if (letter.classList.contains("right")){
-    self.x = "right"
-    neighbor.x = "left"
-    movementX.min = (letterWidth - window.innerWidth)
-    movementX.max = 0
-  }
-  
-  let clicked = document.getElementById(self.y + self.x);
-  axis.x = document.getElementById(neighbor.y + self.x);
-  axis.y = document.getElementById(self.y + neighbor.x);
-  
-  let dragging
-  let pos
-  let state = {
-    get dragging() {
-      return dragging
-    },
-    set dragging(d) {
-      dragging = d;
-      
-      //change this to a toggle-class??
-      clicked.style.color = d ? "red" : "inherit";
-      clicked.style.cursor = d ? "grabbing" : "grab";
-      main.style.mozUserSelect = d ? "none" : "auto";
-      main.style.webkitUserSelect = d ? "none" : "auto";
-      main.style.userSelect = d ? "none" : "auto";
-      
-      clicked.style.transitionDuration =  d ? "0s" : springTime;
-      axis.y.style.transitionDuration =  d ? "0s" : springTime;
-      axis.x.style.transitionDuration =  d ? "0s" : springTime;
-      main.style.transitionDuration = d ? "0s" : springTime;
-
-      clicked.style.transitionTimingFunction = springType;
-      axis.y.style.transitionTimingFunction = springType;
-      axis.x.style.transitionTimingFunction = springType;
-      main.style.transitionTimingFunction = springType;
-      
-      clicked.style.transitionProperty = "transform";
-      main.style.transitionProperty = "transform, clip-path";
-
-      
-    },
-    get pos() {
-      return pos
-    },
-    set pos(p) {
-      pos = {
-        x: clamp(p.x, movementX.min, movementX.max),
-        y: clamp(p.y, movementY.min, movementY.max)
-      };
-      let inset = {
-        top: (self.y == "top") ? pos.y : 0,
-        bottom: (self.y == "bottom") ? (0 - pos.y) : 0 ,
-        right: (self.x == "right") ? (0 - pos.x) : 0,
-        left: (self.x == "left") ? pos.x : 0
-      }
-      clicked.style.transform = `translate(${pos.x}px,${pos.y}px)`;
-      axis.y.style.transform = `translateY(${pos.y}px)`;
-      axis.x.style.transform = `translateX(${pos.x}px)`;
-      main.style.clipPath = `inset(${inset.top}px ${inset.right}px ${inset.bottom}px ${inset.left}px)`
-    },
-
-    eventToCoordinates(event) {
-      return {
-        x: event.clientX,
-        y: event.clientY
-      };
-    },
-  }
-  state.pos = {
-    x: 0,
-    y: 0
-  }
-  state.dragging = false
-  
-  
-  function start(event) {
-    if (event.button !== 0) return; // left button only
-    let {
-      x,
-      y
-    } = state.eventToCoordinates(event);
-    state.dragging = {
-      dx: state.pos.x - x,
-      dy: state.pos.y - y
-    };
-    letter.setPointerCapture(event.pointerId);
-    
-    let backgrounds = document.querySelectorAll(".background")
-    backgrounds.forEach((content) => {
-      let contentID = self.y + self.x + "content"
-      if (contentID == content.id) {
-        content.removeAttribute("hidden");
-      } else {
-        content.setAttribute("hidden", true);
-      }
-    });
-  }
-
-  function end(event) {
-    state.dragging = null;
-    let {
-      x,
-      y
-    } = state.eventToCoordinates(event);
-    state.pos = {
-      x: 0,
-      y: 0
-    };
-  }
-
-  function move(event) {
-    if (!state.dragging) return;
-    let {
-      x,
-      y
-    } = state.eventToCoordinates(event);
-    state.pos = {
-      x: x + state.dragging.dx,
-      y: y + state.dragging.dy
-    };
-  }
-
-  letter.addEventListener('pointerdown', start);
-  letter.addEventListener('pointerup', end);
-  letter.addEventListener('pointercancel', end);
-  letter.addEventListener('pointermove', move)
-  letter.addEventListener('touchstart', (e) => e.preventDefault());
-  letter.addEventListener('dragstart', (e) => e.preventDefault());
-});
-</script>
-
-</body></html>
+    <!-- SCRIPTS -->
+    <script>
+        // 1. Bucharest Time Clock (Formatted for CMD)
+        function updateTime() {
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-US', { 
+                timeZone: 'Europe/Bucharest',
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric'
+            });
+            const timeString = now.toLocaleTimeString('en-US', { 
+                timeZone: 'Europe/Bucharest',
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            const fullString = `The current date is ${dateString}\nThe current time is ${timeString}`;
+            
+            // Update both the initial display and the 'active' prompt time
+            const timeElement = document.getElementById('time-display');
+            if (timeElement) {
+                 timeElement.innerHTML = fullString;
+            }
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
