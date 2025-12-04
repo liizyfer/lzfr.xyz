@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>C:\&gt; Cristea Mihai | CMD Interface</title>
     
-    <!-- Fonts: Use a standard monospaced font for authenticity -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -13,21 +13,20 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tailwind Configuration -->
+    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        mono: ['Space Mono', 'monospace'], // The primary terminal font
+                        mono: ['Space Mono', 'monospace'],
                     },
                     colors: {
-                        primary: '#000000', // Black background
-                        text_main: '#FFFFFF', // White text
-                        prompt: '#AAAAAA', // Light gray for prompt info
+                        primary: '#000000',
+                        text_main: '#FFFFFF',
+                        prompt: '#AAAAAA',
                     },
                     keyframes: {
-                        // Blinking cursor animation
                         blink: {
                             '0%, 100%': { opacity: 1 },
                             '50%': { opacity: 0 },
@@ -44,14 +43,14 @@
     <style>
         /* Global CMD Styles */
         body {
-            background-color: #000000;
+            background-color: #000000; /* Initial Black Background */
             color: #FFFFFF;
             font-family: 'Space Mono', monospace;
             overflow-x: hidden;
             padding: 0;
             margin: 0;
-            /* Hide default cursor and use I-beam style */
             cursor: text; 
+            transition: background-color 0.5s ease; /* Smooth transition for background change */
         }
 
         /* Container mimics the CMD window */
@@ -61,15 +60,17 @@
             margin: 0 auto;
             min-height: 100vh;
             padding: 20px;
-            line-height: 1.5; /* Standard terminal line spacing */
+            line-height: 1.5;
             font-size: 14px;
+            position: relative;
+            z-index: 10; /* Ensures text stays ON TOP of the video */
         }
 
         /* The Blinking Cursor */
         .cursor {
             display: inline-block;
-            width: 8px; /* Width of the block cursor */
-            height: 14px; /* Height of the block cursor */
+            width: 8px;
+            height: 14px;
             background-color: #FFFFFF;
             margin-left: 2px;
             position: relative;
@@ -77,18 +78,9 @@
             animation: blink 1s step-start infinite;
         }
 
-        /* CMD Prompt look */
-        .cmd-prompt {
-            color: #FFFFFF;
-            white-space: pre;
-        }
-
-        /* Command Output Style */
-        .cmd-output {
-            margin-bottom: 10px;
-        }
-
-        /* Link/Command Button Style */
+        .cmd-prompt { color: #FFFFFF; white-space: pre; }
+        .cmd-output { margin-bottom: 10px; }
+        
         .cmd-link {
             display: block;
             color: #FFFFFF;
@@ -96,11 +88,8 @@
             cursor: pointer;
             transition: background-color 0.1s;
         }
-        .cmd-link:hover {
-            background-color: #333333; /* Highlight on hover */
-        }
+        .cmd-link:hover { background-color: #333333; }
         
-        /* Directory/Log Header */
         .dir-header {
             color: #AAAAAA;
             margin-top: 15px;
@@ -108,14 +97,38 @@
             border-bottom: 1px dashed #444444;
             padding-bottom: 3px;
         }
+
+        /* BACKGROUND VIDEO STYLES - Initially hidden, full screen */
+        #bg-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1; /* Puts video behind the content */
+            object-fit: cover;
+            opacity: 0; /* Hidden initially */
+            transition: opacity 1s ease-in-out;
+            /* Optional: Add a slight dark filter to improve text readability over video */
+            filter: brightness(0.7); 
+        }
     </style>
 </head>
 <body>
 
+    <!-- 1. BACKGROUND VIDEO (Hidden by default behind the body's black color) -->
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="https://github.com/liizyfer/lzfr.xyz/raw/refs/heads/main/%5BoUV0ZbZlals%5D.mp4" type="video/mp4">
+        <!-- Fallback text for browsers that don't support the video tag -->
+        Your browser does not support the video tag.
+    </video>
+
     <!-- Main CMD Container -->
     <div class="console-container">
         
-        <!-- 1. BOOT SEQUENCE -->
+        <!-- BOOT SEQUENCE -->
         <div id="boot-sequence" class="cmd-output">
             Microsoft Windows [Version 10.0.19045.3996]<br>
             (c) Microsoft Corporation. All rights reserved.<br>
@@ -124,7 +137,7 @@
             <br>
         </div>
 
-        <!-- 2. IDENTITY LOG (Default Output) -->
+        <!-- IDENTITY LOG -->
         <div id="identity-log" class="cmd-output">
             C:\Users\Cristea\&gt; run profile_init.exe<br>
             <br>
@@ -138,27 +151,23 @@
             <br>
         </div>
 
-        <!-- 3. NAVIGATION / COMMANDS -->
+        <!-- COMMANDS -->
         <div id="command-list" class="cmd-output">
             C:\Users\Cristea\&gt; help<br>
             <span class="text-prompt">Available Commands:</span><br>
             
             <span class="ml-4">
                 <a href="#projects" class="cmd-link inline-block w-full">WORK_LOG ............ Displays the project log and access dates.</a>
-                <!-- The DATA_MATRIX command is removed here -->
                 <a href="mailto:liizyfer@gmail.com" class="cmd-link inline-block w-full">CONTACT ............. liizyfer@gmail.com</a>
-
                 <a href="https://instagram.com/liizyfer" target="_blank" class="cmd-link inline-block w-full flex items-center">
                     <span class="bg-fuchsia-500 w-2 h-4 mr-2 inline-block relative top-[1px] animate-blink"></span>INSTAGRAM ........... @liizyfer
                 </a>
-
                 <a href="https://t.me/liizyfer" target="_blank" class="cmd-link inline-block w-full">TELEGRAM ............ @liizyfer</a>
             </span>
             <br>
         </div>
 
-
-        <!-- 4. PROJECTS / WORK LOG (Note: Section 4 from original is now this section) -->
+        <!-- WORK LOG -->
         <div id="projects" class="cmd-output mt-8">
             <C class="cmd-prompt">C:\Users\Cristea\&gt; WORK_LOG</C><br>
             <span class="text-prompt">Directory of C:\Users\Cristea\Projects\</span><br>
@@ -170,94 +179,52 @@
                 <span class="col-span-2 text-right">Date</span>
             </div>
             
-            <!-- Project Log Entries (Sorted Chronologically Descending) -->
             <div class="divide-y divide-gray-800">
-                <!-- 2025 Projects -->
+                <!-- Project List (Using dummy links for non-existent entries) -->
                 <a href="https://glamor.eu/" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[01]</span>
-                    <span class="col-span-5">Glamor</span>
-                    <span class="col-span-4 hidden md:block">E-commerce / Fashion</span>
-                    <span class="col-span-2 text-right">2025</span>
+                    <span class="col-span-1">[01]</span><span class="col-span-5">Glamor</span><span class="col-span-4 hidden md:block">E-commerce / Fashion</span><span class="col-span-2 text-right">2025</span>
                 </a>
                 <a href="https://angel96.ro/" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[02]</span>
-                    <span class="col-span-5">Angel96</span>
-                    <span class="col-span-4 hidden md:block">Driving School / Education</span>
-                    <span class="col-span-2 text-right">2025</span>
+                    <span class="col-span-1">[02]</span><span class="col-span-5">Angel96</span><span class="col-span-4 hidden md:block">Driving School / Education</span><span class="col-span-2 text-right">2025</span>
                 </a>
                 <a href="#" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[03]</span>
-                    <span class="col-span-5">Union Consult</span>
-                    <span class="col-span-4 hidden md:block">Business / Corporate</span>
-                    <span class="col-span-2 text-right">2025</span>
+                    <span class="col-span-1">[03]</span><span class="col-span-5">Union Consult</span><span class="col-span-4 hidden md:block">Business / Corporate</span><span class="col-span-2 text-right">2025</span>
                 </a>
                 <a href="https://antico-panino.ro" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[04]</span>
-                    <span class="col-span-5">Antico Panino</span>
-                    <span class="col-span-4 hidden md:block">Food & Bistro / Web Design</span>
-                    <span class="col-span-2 text-right">2025</span>
+                    <span class="col-span-1">[04]</span><span class="col-span-5">Antico Panino</span><span class="col-span-4 hidden md:block">Food & Bistro / Web Design</span><span class="col-span-2 text-right">2025</span>
                 </a>
                 <a href="https://royalpajamas.ro" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[05]</span>
-                    <span class="col-span-5">Royal Pajamas</span>
-                    <span class="col-span-4 hidden md:block">E-commerce / Fashion, Exclusive</span>
-                    <span class="col-span-2 text-right">2025</span>
+                    <span class="col-span-1">[05]</span><span class="col-span-5">Royal Pajamas</span><span class="col-span-4 hidden md:block">E-commerce / Fashion</span><span class="col-span-2 text-right">2025</span>
                 </a>
-                <!-- 2024 Projects -->
                 <a href="https://greennews.ro/" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[06]</span>
-                    <span class="col-span-5">GreenNews</span>
-                    <span class="col-span-4 hidden md:block">Media / News Portal, SEO</span>
-                    <span class="col-span-2 text-right">2024</span>
+                    <span class="col-span-1">[06]</span><span class="col-span-5">GreenNews</span><span class="col-span-4 hidden md:block">Media / News Portal, SEO</span><span class="col-span-2 text-right">2024</span>
                 </a>
                 <a href="https://hugbakery.ro/" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[07]</span>
-                    <span class="col-span-5">Hug Bakery</span>
-                    <span class="col-span-4 hidden md:block">Food & Bistro / Web Design</span>
-                    <span class="col-span-2 text-right">2024</span>
+                    <span class="col-span-1">[07]</span><span class="col-span-5">Hug Bakery</span><span class="col-span-4 hidden md:block">Food & Bistro / Web Design</span><span class="col-span-2 text-right">2024</span>
                 </a>
                 <a href="https://the-a.ro/" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[08]</span>
-                    <span class="col-span-5">The-A Expert</span>
-                    <span class="col-span-4 hidden md:block">E-commerce / Clinic, Health</span>
-                    <span class="col-span-2 text-right">2024</span>
+                    <span class="col-span-1">[08]</span><span class="col-span-5">The-A Expert</span><span class="col-span-4 hidden md:block">E-commerce / Clinic, Health</span><span class="col-span-2 text-right">2024</span>
                 </a>
                 <a href="#" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[09]</span>
-                    <span class="col-span-5">Supreme Snacks</span>
-                    <span class="col-span-4 hidden md:block">E-commerce / Food, Logistics</span>
-                    <span class="col-span-2 text-right">2024</span>
+                    <span class="col-span-1">[09]</span><span class="col-span-5">Supreme Snacks</span><span class="col-span-4 hidden md:block">E-commerce / Food, Logistics</span><span class="col-span-2 text-right">2024</span>
                 </a>
                 <a href="https://rojet.ro" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[10]</span>
-                    <span class="col-span-5">RoJet Aviation</span>
-                    <span class="col-span-4 hidden md:block">Services / Aviation, UI/UX</span>
-                    <span class="col-span-2 text-right">2024</span>
+                    <span class="col-span-1">[10]</span><span class="col-span-5">RoJet Aviation</span><span class="col-span-4 hidden md:block">Services / Aviation, UI/UX</span><span class="col-span-2 text-right">2024</span>
                 </a>
                 <a href="#" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[11]</span>
-                    <span class="col-span-5">MaKitchenBistro</span>
-                    <span class="col-span-4 hidden md:block">Food & Bistro / Web Design, Marketing</span>
-                    <span class="col-span-2 text-right">2024</span>
+                    <span class="col-span-1">[11]</span><span class="col-span-5">MaKitchenBistro</span><span class="col-span-4 hidden md:block">Food / Web Design</span><span class="col-span-2 text-right">2024</span>
                 </a>
-                <!-- 2023 Projects -->
                 <a href="https://biboburgers.ro" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[12]</span>
-                    <span class="col-span-5">Bibo Burgers</span>
-                    <span class="col-span-4 hidden md:block">"Probably the best burgers in Europe!"</span>
-                    <span class="col-span-2 text-right">2023</span>
+                    <span class="col-span-1">[12]</span><span class="col-span-5">Bibo Burgers</span><span class="col-span-4 hidden md:block">"Best burgers in Europe!"</span><span class="col-span-2 text-right">2023</span>
                 </a>
                 <a href="https://manon-chemise.ro/" target="_blank" class="cmd-link grid grid-cols-12 py-1">
-                    <span class="col-span-1">[13]</span>
-                    <span class="col-span-5">Manon Chemise</span>
-                    <span class="col-span-4 hidden md:block">Hi-Tech products / Custom made fashion</span>
-                    <span class="col-span-2 text-right">2023</span>
+                    <span class="col-span-1">[13]</span><span class="col-span-5">Manon Chemise</span><span class="col-span-4 hidden md:block">Fashion / Custom made</span><span class="col-span-2 text-right">2023</span>
                 </a>
             </div>
             <br>
         </div>
         
-        <!-- 5. ACTIVE PROMPT (Always at the bottom) -->
+        <!-- ACTIVE PROMPT -->
         <div class="cmd-prompt flex">
             <span class="text-white">C:\Users\Cristea\&gt; </span>
             <span class="cmd-link">|</span><span class="cursor"></span>
@@ -267,34 +234,46 @@
 
     <!-- SCRIPTS -->
     <script>
-        // 1. Bucharest Time Clock (Formatted for CMD)
+        // 1. Time Update
         function updateTime() {
             const now = new Date();
             const dateString = now.toLocaleDateString('en-US', { 
-                timeZone: 'Europe/Bucharest',
-                month: '2-digit',
-                day: '2-digit',
-                year: 'numeric'
+                timeZone: 'Europe/Bucharest', month: '2-digit', day: '2-digit', year: 'numeric'
             });
             const timeString = now.toLocaleTimeString('en-US', { 
-                timeZone: 'Europe/Bucharest',
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+                timeZone: 'Europe/Bucharest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
-            
-            const fullString = `The current date is ${dateString}\nThe current time is ${timeString}`;
-            
-            // Update both the initial display and the 'active' prompt time
             const timeElement = document.getElementById('time-display');
-            if (timeElement) {
-                 timeElement.innerHTML = fullString;
-            }
+            if (timeElement) timeElement.innerHTML = `The current date is ${dateString}\nThe current time is ${timeString}`;
         }
         setInterval(updateTime, 1000);
         updateTime();
+
+        // 2. VIDEO TRIGGER SCRIPT
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoBtn = document.getElementById('videobtn');
+            const bgVideo = document.getElementById('bg-video');
+
+            videoBtn.addEventListener('click', function() {
+                // 1. Make the body background transparent immediately
+                document.body.style.backgroundColor = 'transparent';
+                
+                // 2. Make the video visible with smooth transition
+                bgVideo.style.opacity = '1';
+                
+                // 3. Ensure video starts playing (essential for unmuted playback)
+                bgVideo.play().catch(error => {
+                    console.error("Video playback failed (common due to auto-play restrictions):", error);
+                    // Inform the user, but since we cannot use alert(), just log
+                });
+                
+                // 4. Hide the button
+                videoBtn.style.display = 'none';
+            });
+        });
     </script>
+    
+    <!-- The Trigger Button -->
+	<div id="videobtn" style="background:red;position:fixed;bottom:0;right:0;width:25px;height:25px;cursor:pointer;z-index:9999;border-radius:4px;box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);" title="Execute Visual Override"></div>
 </body>
 </html>
-
