@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL: TRANSIT_MONITOR</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-main: #ffffff;
+            --text-dim: #888888;
+            --accent: #ffffff;
+            --border: #333333;
+            --font: "Courier New", Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            cursor: default;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            position: relative;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cmd-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .stats {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            font-family: var(--font);
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        .line-item {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px dotted var(--border);
+            align-items: center;
+        }
+
+        .line-item:last-child {
+            border-bottom: none;
+        }
+
+        .line-id {
+            width: 60px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .line-dest {
+            flex-grow: 1;
+            padding: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .line-arrival {
+            width: 80px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .meta {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-left: 5px;
+        }
+
+        .loading-text {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .station-label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <div class="cmd-line">
+            <span id="clock">00:00:00</span>
+        </div>
+        <div class="stats">
+        <span id="status"></span>
+        </div>
+        <div class="controls">
+            <button onclick="manualRefresh()">REFRESH</button>
+            <span class="stats"><span id="countdown">60</span>s</span>
+        </div>
+    </header>
+
+    <div id="output">
+        <div class="loading-text">SCANNING_NETWORKS...</div>
+    </div>
+</div>
+
+<script>
+    const ENDPOINTS = [
+        "https://maps.mo-bi.ro/api/nextArrivals/6002",
+        "https://maps.mo-bi.ro/api/nextArrivals/3500"
+    ];
+    
+    let countdownValue = 60;
+    let timerInterval;
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').textContent = now.toTimeString().split(' ')[0];
+    }
+
+    function formatTime(seconds) {
+        if (seconds < 60) return "NOW";
+        return Math.floor(seconds / 60) + "m";
+    }
+
+    async function fetchData() {
+        const statusEl = document.getElementById('status');
+        const outputEl = document.getElementById('output');
+        
+        statusEl.textContent = "SYNCING";
+        statusEl.classList.add('loading-text');
+
+        try {
+            const requests = ENDPOINTS.map(url => fetch(url).then(res => res.json()));
+            const results = await Promise.all(requests);
+            
+            // Flatten all lines from both stations
+            let allLines = [];
+            results.forEach(station => {
+                if (station.lines) {
+                    station.lines.forEach(l => {
+                        allLines.push({
+                            ...l,
+                            stationName: station.name
+                        });
+                    });
+                }
+            });
+
+            // Sort by arrival time
+            allLines.sort((a, b) => a.arrivingTime - b.arrivingTime);
+
+            if (allLines.length === 0) {
+                outputEl.innerHTML = `<div>NO_DATA_AVAILABLE</div>`;
+            } else {
+                let html = '';
+                allLines.forEach(line => {
+                    const timeStr = formatTime(line.arrivingTime);
+                    html += `
+                    <div class="line-item">
+                        <span class="line-id">${line.name}</span>
+                        <div class="line-dest">
+                            ${line.directionName.toUpperCase()}
+                            <span class="station-label">${line.stationName}</span>
+                        </div>
+                        <span class="line-arrival">${timeStr} <span class="meta">${line.isTimetable ? 'SCH' : 'GPS'}</span></span>
+                    </div>`;
+                });
+                outputEl.innerHTML = html;
+            }
+
+            statusEl.textContent = "IDLE";
+            resetCountdown();
+        } catch (err) {
+            console.error(err);
+            statusEl.textContent = "ERR_FETCH";
+            outputEl.innerHTML = `<div style="color:red">CONNECTION_LOST_RETRYING...</div>`;
+        } finally {
+            statusEl.classList.remove('loading-text');
+        }
+    }
+
+    function resetCountdown() {
+        countdownValue = 60;
+        document.getElementById('countdown').textContent = countdownValue;
+    }
+
+    function runTimer() {
+        timerInterval = setInterval(() => {
+            countdownValue--;
+            document.getElementById('countdown').textContent = countdownValue;
+            updateClock();
+
+            if (countdownValue <= 0) {
+                fetchData();
+            }
+        }, 1000);
+    }
+
+    function manualRefresh() {
+        fetchData();
+    }
+
+    // Init
+    updateClock();
+    fetchData();
+    runTimer();
+
+</script>
+
+</body>
+</html>
