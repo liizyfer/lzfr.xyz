@@ -160,7 +160,7 @@
             <span id="clock">00:00:00</span>
         </div>
         <div class="stats">
-        <span id="status"></span>
+            <span id="status">INIT</span>
         </div>
         <div class="controls">
             <button onclick="manualRefresh()">REFRESH</button>
@@ -169,13 +169,13 @@
     </header>
 
     <div id="output">
-        <div class="loading-text">INITIALIZING_TERMINAL...</div>
+        <div class="loading-text">BOOTING_TERMINAL...</div>
     </div>
 </div>
 
 <script>
-    // Using a CORS Proxy to bypass browser restrictions
-    const PROXY = "https://corsproxy.io/?";
+    // Alternative CORS Proxy. You can try "https://api.allorigins.win/raw?url=" if this fails.
+    const PROXY = "https://api.codetabs.com/v1/proxy?quest=";
     const ENDPOINTS = [
         "https://maps.mo-bi.ro/api/nextArrivals/6002",
         "https://maps.mo-bi.ro/api/nextArrivals/3500"
@@ -195,18 +195,21 @@
     }
 
     /**
-     * Fetches data with exponential backoff to handle network flickers
+     * Fetches with a 10-second timeout to prevent the app from hanging forever
      */
-    async function fetchWithRetry(url, retries = 5, delay = 1000) {
+    async function fetchWithTimeout(url, timeout = 10000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+
         try {
-            const response = await fetch(PROXY + encodeURIComponent(url));
+            const response = await fetch(PROXY + encodeURIComponent(url), {
+                signal: controller.signal
+            });
+            clearTimeout(id);
             if (!response.ok) throw new Error(`HTTP_${response.status}`);
             return await response.json();
         } catch (err) {
-            if (retries > 0) {
-                await new Promise(res => setTimeout(res, delay));
-                return fetchWithRetry(url, retries - 1, delay * 2);
-            }
+            clearTimeout(id);
             throw err;
         }
     }
@@ -219,26 +222,30 @@
         statusEl.classList.add('loading-text');
 
         try {
-            const requests = ENDPOINTS.map(url => fetchWithRetry(url));
-            const results = await Promise.all(requests);
-            
+            // Using a simple loop instead of Promise.all to isolate failures
             let allLines = [];
-            results.forEach(station => {
-                if (station && station.lines) {
-                    station.lines.forEach(l => {
-                        allLines.push({
-                            ...l,
-                            stationName: station.name || "UNKNOWN_STATION"
+            
+            for (const url of ENDPOINTS) {
+                try {
+                    const station = await fetchWithTimeout(url);
+                    if (station && station.lines) {
+                        station.lines.forEach(l => {
+                            allLines.push({
+                                ...l,
+                                stationName: station.name || "STATION_X"
+                            });
                         });
-                    });
+                    }
+                } catch (e) {
+                    console.warn(`Failed to fetch ${url}:`, e);
                 }
-            });
+            }
 
             // Sort by arrival time
             allLines.sort((a, b) => a.arrivingTime - b.arrivingTime);
 
             if (allLines.length === 0) {
-                outputEl.innerHTML = `<div>NO_LIVE_TRAFFIC_DETECTED</div>`;
+                outputEl.innerHTML = `<div>NO_NETWORK_DATA_FOUND</div>`;
             } else {
                 let html = '';
                 allLines.forEach(line => {
@@ -259,15 +266,13 @@
             statusEl.textContent = "IDLE";
             resetCountdown();
         } catch (err) {
-            console.error("Fetch Error:", err);
-            statusEl.textContent = "ERR_CORS_OR_NETWORK";
+            console.error("General Fetch Error:", err);
+            statusEl.textContent = "NET_TIMEOUT";
             outputEl.innerHTML = `
                 <div style="color: #ff5555; font-size: 0.8rem;">
-                    [ACCESS_DENIED] API REJECTED DIRECT BROWSER REQUEST.<br><br>
-                    TROUBLESHOOTING:<br>
-                    1. ENSURE PROXY IS ONLINE<br>
-                    2. CHECK DATA CONNECTION<br>
-                    3. RETRYING IN NEXT CYCLE...
+                    [CRITICAL_FAILURE]<br>
+                    PROXY_TIMEOUT OR API_UNREACHABLE.<br><br>
+                    MANUAL OVERRIDE REQUIRED OR WAIT FOR AUTO-RETRY.
                 </div>`;
         } finally {
             statusEl.classList.remove('loading-text');
@@ -282,13 +287,13 @@
     function runTimer() {
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
-            countdownValue--;
-            if (countdownValue < 0) countdownValue = 0;
-            
-            document.getElementById('countdown').textContent = countdownValue;
+            if (countdownValue > 0) {
+                countdownValue--;
+                document.getElementById('countdown').textContent = countdownValue;
+            }
             updateClock();
 
-            if (countdownValue === 0) {
+            if (countdownValue <= 0) {
                 fetchData();
             }
         }, 1000);
@@ -298,12 +303,12 @@
         fetchData();
     }
 
-    // Initialize terminal
-    window.onload = () => {
+    // Explicitly wait for full load
+    window.addEventListener('load', () => {
         updateClock();
         fetchData();
         runTimer();
-    };
+    });
 
 </script>
 
